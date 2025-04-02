@@ -1,0 +1,49 @@
+{
+    "_id": "_design/qrcodes",
+    "kazoo": {
+        "view_map": [
+            {
+                "classification": "account"
+            }
+        ]
+    },
+    "language": "javascript",
+    "views": {
+        "crossbar_listing": {
+            "map": [
+                "function(doc) {",
+                "if (doc.pvt_type != 'qrcode' || doc.pvt_deleted) return;",
+                "emit(doc._id, {",
+                "'owner_id': doc.owner_id,",
+                "'secret': doc.secret,",
+                "'image': doc.image,",
+                "'enabled': doc.enabled",
+                "});",
+                "}"
+            ]
+        },
+        "listing_by_owner": {
+            "map": [
+                "function(doc) {",
+                "  if (doc.pvt_type != 'qrcode' || doc.pvt_deleted) return;",
+                "  var owners = {};",
+                "  if (doc.owner_id)",
+                "    owners[doc.owner_id] = true;",
+                "  var owners_keys = [], o = owners || {};",
+                "  for (var p in o)",
+                "    if (o.hasOwnProperty(p))",
+                "      owners_keys.push(p);",
+                "  owners_keys.forEach(function(os) {",
+                "    emit(os, {",
+                "      'id': doc._id,",
+                "      'owner_id': doc.owner_id,",
+                "      'secret': doc.secret,",
+                "      'image': doc.image,",
+                "      'enabled': doc.enabled",
+                "    });",
+                "  });",
+                "}"
+            ]
+        }
+    }
+}
